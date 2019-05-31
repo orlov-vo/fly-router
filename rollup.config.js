@@ -1,22 +1,27 @@
 /* eslint-env node */
-const nodeResolve = require("rollup-plugin-node-resolve");
-const commonjs = require("rollup-plugin-commonjs");
 const babel = require("rollup-plugin-babel");
-const autoExternal = require("rollup-plugin-auto-external");
+const babelConfig = require("./babel.config");
 const pkg = require("./package.json");
 
-function createConfig(env) {
-    let babelOptions = {
-        forceAllTransforms: true
-    };
+function updatePresetEnv(config, value) {
+    const preset = config.presets.find(i => i && i[0] && i[0] === "@babel/env");
 
-    if (env === "es2015") {
-        babelOptions = {
-            targets: {
-                esmodules: true
-            }
-        };
-    }
+    preset[1] = typeof value === "function" ? value(preset[1]) : { ...preset[1], ...value };
+}
+
+function createConfig(env) {
+    const config = updatePresetEnv(
+        babelConfig,
+        env === "es2015"
+            ? {
+                  targets: {
+                      esmodules: true
+                  }
+              }
+            : {
+                  forceAllTransforms: true
+              }
+    );
 
     return {
         input: "src/index.js",
@@ -29,31 +34,7 @@ function createConfig(env) {
             format: env === "es2015" ? "esm" : "cjs",
             exports: "named"
         },
-        plugins: [
-            babel({
-                exclude: "node_modules/**",
-                presets: [
-                    [
-                        "@babel/env",
-                        {
-                            useBuiltIns: "usage",
-                            corejs: 3,
-                            loose: true,
-                            exclude: ["transform-regenerator", "transform-async-to-generator"],
-                            ...babelOptions
-                        }
-                    ]
-                ],
-                plugins: [
-                    [
-                        "babel-plugin-transform-async-to-promises",
-                        {
-                            inlineHelpers: true
-                        }
-                    ]
-                ]
-            })
-        ]
+        plugins: [babel(config)]
     };
 }
 

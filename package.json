@@ -9,8 +9,10 @@
     "api": "documentation build src/*.js -f md -o api.md",
     "spell": "npm run api && yaspeller *.md",
     "lint": "eslint src/*.js",
+    "format": "prettier --write \"{,src/,example/}*.{js,json,html,md}\"",
+    "format-check": "prettier --list-different \"{,src/,example/}*.{js,json,html,md}\"",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "jest --coverage && npm run lint && npm run build && size-limit && npm run typecheck && npm run spell"
+    "test": "jest --coverage"
   },
   "keywords": [
     "router",
@@ -25,21 +27,27 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged",
+      "pre-push": "npm run format-check && npm run lint && npm run test && npm run build && size-limit && npm run typecheck"
     }
   },
   "size-limit": [
     {
       "path": "dist/fly-router.js",
-      "limit": "2.35 KB",
+      "limit": "3.29 KB",
       "running": false
     },
     {
       "path": "dist/fly-router.mjs",
-      "limit": "2.26 KB",
+      "limit": "2.73 KB",
       "running": false
     }
   ],
+  "jestConfig": {
+    "transform": {
+      "^.+\\.js$": "babel-jest"
+    }
+  },
   "yaspeller": {
     "lang": "en",
     "ignoreCapitalization": true,
@@ -58,6 +66,7 @@
     "@babel/core": "^7.4.5",
     "@babel/preset-env": "^7.4.5",
     "babel-eslint": "^10.0.1",
+    "babel-jest": "^24.8.0",
     "babel-plugin-transform-async-to-promises": "^0.8.11",
     "documentation": "^11.0.0",
     "eslint": "^5.16.0",
