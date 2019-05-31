@@ -1,0 +1,14 @@
+.DS_Store
+*~
+
+dist/
+node_modules/
+npm-debug.log
+yarn-error.log
+
+coverage/
+example/.cache/
+example/dist/
+
+.vscode/
+/api.md
